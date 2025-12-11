@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.jose.pantrypal.ui.theme.PantryPalTheme
+import com.jose.pantrypal.navigation.PantryPalApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,13 +20,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PantryPalTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // TODO: NavHost will go here
-                    Text(
-                        text = "PantryPal Root",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                PantryPalApp()
             }
         }
     }
