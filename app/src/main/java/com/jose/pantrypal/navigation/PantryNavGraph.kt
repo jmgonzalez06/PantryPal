@@ -15,8 +15,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jose.pantrypal.auth.LoginScreen
-import com.jose.pantrypal.auth.SignUpScreen
+import com.jose.pantrypal.auth.LoginRoute
+import com.jose.pantrypal.auth.SignUpRoute
 import com.jose.pantrypal.dashboard.DashboardScreen
 import com.jose.pantrypal.inventory.InventoryScreen
 import com.jose.pantrypal.profile.ProfileScreen
@@ -83,11 +83,11 @@ fun PantryPalApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.LOGIN) {
-                LoginScreen(
+                LoginRoute(
                     onNavigateToSignUp = {
                         navController.navigate(Routes.SIGN_UP)
                     },
-                    onNavigateToDashboard = {
+                    onLoginSuccess = {
                         navController.navigate(Routes.DASHBOARD) {
                             popUpTo(Routes.LOGIN) {
                                 inclusive = true
@@ -98,9 +98,8 @@ fun PantryPalApp() {
             }
 
             composable(Routes.SIGN_UP) {
-                SignUpScreen(
+                SignUpRoute(
                     onNavigateToLogin = {
-                        // Simple behavior for now: go back
                         navController.popBackStack()
                     }
                 )
