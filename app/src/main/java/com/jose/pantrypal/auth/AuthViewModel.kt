@@ -1,12 +1,12 @@
 package com.jose.pantrypal.auth
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+// import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+// import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val repository: AuthRepository = FirebaseAuthRepository(FirebaseAuth.getInstance())
@@ -17,6 +17,9 @@ class AuthViewModel(
 
     private val _signUpUiState = MutableStateFlow(SignUpUiState())
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState.asStateFlow()
+
+    val currentUser: AuthUser?
+        get() = repository.getCurrentUser()
 
     // Login form updates
 
@@ -163,5 +166,11 @@ class AuthViewModel(
         _signUpUiState.value = _signUpUiState.value.copy(
             isSignUpSuccessful = false
         )
+    }
+
+    fun signOut() {
+        repository.signOut()
+        _loginUiState.value = LoginUiState()
+        _signUpUiState.value = SignUpUiState()
     }
 }
