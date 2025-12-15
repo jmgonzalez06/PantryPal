@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.navigation.NavDestination
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -70,19 +71,15 @@ fun PantryPalApp() {
                         NavigationBarItem(
                             selected = selected,
                             onClick = {
-                                if (!selected) {
-                                    navController.navigate(item.route) {
-                                        // Keep dashboard as the root of main graph
-                                        popUpTo(Routes.DASHBOARD) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
                                     }
+                                    launchSingleTop = true
+                                    restoreState = false
                                 }
                             },
                             label = { Text(item.label) },
-                            // Simple label in the icon slot for now; we can add real icons later
                             icon = { Text(item.label.first().toString()) }
                         )
                     }
@@ -119,7 +116,23 @@ fun PantryPalApp() {
             }
 
             composable(Routes.DASHBOARD) {
-                DashboardScreen()
+                DashboardScreen(
+                    onExpiringTodayClick = {
+                        navController.navigate(Routes.INVENTORY) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onExpiringSoonClick = {
+                        navController.navigate(Routes.INVENTORY) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onTotalItemsClick = {
+                        navController.navigate(Routes.INVENTORY) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
 
             composable(Routes.INVENTORY) {
