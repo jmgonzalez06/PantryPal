@@ -11,17 +11,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-// Route composable
 
 @Composable
 fun LoginRoute(
@@ -30,6 +33,7 @@ fun LoginRoute(
 ) {
     val authViewModel: AuthViewModel = viewModel()
     val state by authViewModel.loginUiState.collectAsState()
+    val resetState by authViewModel.resetUiState.collectAsState()
 
     // Navigate when login succeeds
     LaunchedEffect(state.isLoginSuccessful) {
@@ -44,7 +48,11 @@ fun LoginRoute(
         onEmailChange = authViewModel::onLoginEmailChange,
         onPasswordChange = authViewModel::onLoginPasswordChange,
         onLoginClick = authViewModel::login,
-        onNavigateToSignUp = onNavigateToSignUp
+        onNavigateToSignUp = onNavigateToSignUp,
+        resetState = resetState,
+        onResetEmailChange = authViewModel::onResetEmailChange,
+        onSendPasswordReset = authViewModel::sendPasswordReset,
+        onDismissResetDialogMessage = authViewModel::clearResetMessage
     )
 }
 
@@ -81,8 +89,14 @@ fun LoginScreen(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
-    onNavigateToSignUp: () -> Unit
+    onNavigateToSignUp: () -> Unit,
+    resetState: PasswordResetUiState,
+    onResetEmailChange: (String) -> Unit,
+    onSendPasswordReset: () -> Unit,
+    onDismissResetDialogMessage: () -> Unit
 ) {
+    var showResetDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -137,6 +151,20 @@ fun LoginScreen(
 
         Spacer(Modifier.height(8.dp))
 
+        TextButton(
+            onClick = {
+                if (resetState.email.isBlank() && state.email.isNotBlank()) {
+                    onResetEmailChange(state.email)
+                }
+                showResetDialog = true
+            },
+            enabled = !state.isLoading
+        ) {
+            Text("Forgot password?")
+        }
+
+        Spacer(Modifier.height(8.dp))
+
         Button(
             onClick = onNavigateToSignUp,
             enabled = !state.isLoading,
@@ -144,6 +172,48 @@ fun LoginScreen(
         ) {
             Text("Create an account")
         }
+    }
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismissResetDialogMessage()
+                showResetDialog = false
+            },
+            title = { Text("Reset Password") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = resetState.email,
+                        onValueChange = onResetEmailChange,
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (resetState.message != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(resetState.message)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { onSendPasswordReset() },
+                    enabled = !resetState.isSending
+                ) {
+                    Text(if (resetState.isSending) "Sending..." else "Send")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onDismissResetDialogMessage()
+                        showResetDialog = false
+                    }
+                ) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }
 

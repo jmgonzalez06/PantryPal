@@ -1,12 +1,10 @@
 package com.jose.pantrypal.auth
 
 import androidx.lifecycle.ViewModel
-// import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-// import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val repository: AuthRepository = FirebaseAuthRepository(FirebaseAuth.getInstance())
@@ -17,6 +15,12 @@ class AuthViewModel(
 
     private val _signUpUiState = MutableStateFlow(SignUpUiState())
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState.asStateFlow()
+
+    private val _resetUiState = MutableStateFlow(
+        PasswordResetUiState()
+    )
+    val resetUiState: StateFlow<PasswordResetUiState> =
+        _resetUiState.asStateFlow()
 
     val currentUser: AuthUser?
         get() = repository.getCurrentUser()
@@ -172,5 +176,52 @@ class AuthViewModel(
         repository.signOut()
         _loginUiState.value = LoginUiState()
         _signUpUiState.value = SignUpUiState()
+    }
+
+    //Password Reset
+    fun onResetEmailChange(newEmail: String) {
+        _resetUiState.value = _resetUiState.value.copy(
+            email = newEmail,
+            message = null
+        )
+    }
+
+    fun sendPasswordReset() {
+        val email = _resetUiState.value.email.trim()
+
+        if (email.isBlank()) {
+            _resetUiState.value = _resetUiState.value.copy(
+                message = "Please enter your email."
+            )
+            return
+        }
+
+        _resetUiState.value = _resetUiState.value.copy(
+            isSending = true,
+            message = null
+        )
+
+        repository.sendPasswordResetEmail(email) { result ->
+            when (result) {
+                is AuthResult.Success -> {
+                    _resetUiState.value = _resetUiState.value.copy(
+                        isSending = false,
+                        message = "Password reset email sent."
+                    )
+                }
+                is AuthResult.Error -> {
+                    _resetUiState.value = _resetUiState.value.copy(
+                        isSending = false,
+                        message = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearResetMessage() {
+        _resetUiState.value = _resetUiState.value.copy(
+            message = null
+        )
     }
 }

@@ -66,6 +66,31 @@ class FirebaseAuthRepository(
             }
     }
 
+    override fun sendPasswordResetEmail(
+        email: String,
+        onResult: (AuthResult) -> Unit
+    ) {
+        firebaseAuth
+            .sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // No user object returned; use Success with a lightweight placeholder user
+                    onResult(
+                        AuthResult.Success(
+                            AuthUser(
+                                uid = "",
+                                email = email
+                            )
+                        )
+                    )
+                } else {
+                    val message = task.exception?.localizedMessage
+                        ?: "Failed to send reset email."
+                    onResult(AuthResult.Error(message))
+                }
+            }
+    }
+
     override fun getCurrentUser(): AuthUser? {
         val user = firebaseAuth.currentUser
         return if (user != null) {
