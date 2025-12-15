@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -129,6 +130,7 @@ fun LoginScreen(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = state.errorMessage,
+                color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -191,7 +193,13 @@ fun LoginScreen(
 
                     if (resetState.message != null) {
                         Spacer(Modifier.height(8.dp))
-                        Text(resetState.message)
+                        Text(
+                            text = resetState.message,
+                            color = if (resetState.isError)
+                                MaterialTheme.colorScheme.error
+                            else
+                                MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             },
@@ -268,6 +276,7 @@ fun SignUpScreen(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = state.errorMessage,
+                color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.fillMaxWidth()
             )
         }

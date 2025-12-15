@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.LaunchedEffect
 import com.jose.pantrypal.auth.LoginRoute
 import com.jose.pantrypal.auth.SignUpRoute
 import com.jose.pantrypal.dashboard.DashboardScreen
@@ -36,6 +37,8 @@ fun PantryPalApp() {
         FirebaseAuthRepository(FirebaseAuth.getInstance())
     }
 
+    val navController = rememberNavController()
+
     val startDestination = remember {
         if (authRepository.getCurrentUser() != null) {
             Routes.DASHBOARD
@@ -43,7 +46,15 @@ fun PantryPalApp() {
             Routes.LOGIN
         }
     }
-    val navController = rememberNavController()
+
+    LaunchedEffect(authRepository.getCurrentUser()) {
+        if (authRepository.getCurrentUser() == null) {
+            navController.navigate(Routes.LOGIN) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -147,7 +158,7 @@ fun PantryPalApp() {
                 ProfileRoute(
                     onSignedOut = {
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(Routes.DASHBOARD) {
+                            popUpTo(0) {
                                 inclusive = true
                             }
                             launchSingleTop = true
