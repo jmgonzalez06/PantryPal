@@ -182,7 +182,8 @@ class AuthViewModel(
     fun onResetEmailChange(newEmail: String) {
         _resetUiState.value = _resetUiState.value.copy(
             email = newEmail,
-            message = null
+            message = null,
+            isError = false
         )
     }
 
@@ -206,13 +207,15 @@ class AuthViewModel(
                 is AuthResult.Success -> {
                     _resetUiState.value = _resetUiState.value.copy(
                         isSending = false,
-                        message = "Password reset email sent."
+                        message = "Password reset email sent.",
+                        isError = false
                     )
                 }
                 is AuthResult.Error -> {
                     _resetUiState.value = _resetUiState.value.copy(
                         isSending = false,
-                        message = result.message
+                        message = result.message,
+                        isError = true
                     )
                 }
             }
@@ -221,7 +224,8 @@ class AuthViewModel(
 
     fun clearResetMessage() {
         _resetUiState.value = _resetUiState.value.copy(
-            message = null
+            message = null,
+            isError = false
         )
     }
 }
