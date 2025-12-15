@@ -37,10 +37,20 @@ fun DashboardScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start
     ) {
-        Text("Dashboard")
+        Text(
+            text = "Dashboard",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        Text(
+            text = "Summary",
+            style = MaterialTheme.typography.titleMedium
+        )
 
         Spacer(Modifier.height(16.dp))
 
@@ -80,11 +90,6 @@ fun DashboardScreen(
                     value = summary.totalItems,
                     onClick = onTotalItemsClick
                 )
-
-                Spacer(Modifier.height(16.dp))
-                Button(onClick = dashboardViewModel::refresh) {
-                    Text("Refresh")
-                }
             }
         }
     }
