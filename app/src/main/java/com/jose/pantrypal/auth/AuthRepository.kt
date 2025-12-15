@@ -17,4 +17,9 @@ interface AuthRepository {
     fun getCurrentUser(): AuthUser?
 
     fun signOut()
+
+    fun sendPasswordResetEmail(
+        email: String,
+        onResult: (AuthResult) -> Unit
+    )
 }
