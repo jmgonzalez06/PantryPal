@@ -1,12 +1,19 @@
 package com.jose.pantrypal.dashboard
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jose.pantrypal.items.FakeItemRepository
+import com.jose.pantrypal.items.Item
+import com.jose.pantrypal.items.ItemRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class DashboardViewModel : ViewModel() {
+class DashboardViewModel(
+    private val itemRepository: ItemRepository = FakeItemRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState(isLoading = true))
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
@@ -18,26 +25,28 @@ class DashboardViewModel : ViewModel() {
     fun refresh() {
         _uiState.value = DashboardUiState(isLoading = true)
 
-        try {
-            val items = fakeItems()
+        viewModelScope.launch {
+            try {
+                // TODO: pass the real userId when FirestoreItemRepository is implemented
+                val items = itemRepository.getItemsForUser(userId = "placeholder")
+                val summary = computeSummary(items)
 
-            val summary = computeSummary(items)
-
-            _uiState.value = DashboardUiState(
-                isLoading = false,
-                summary = summary,
-                errorMessage = null
-            )
-        } catch (e: Exception) {
-            _uiState.value = DashboardUiState(
-                isLoading = false,
-                summary = null,
-                errorMessage = e.message ?: "Failed to load dashboard."
-            )
+                _uiState.value = DashboardUiState(
+                    isLoading = false,
+                    summary = summary,
+                    errorMessage = null
+                )
+            } catch (e: Exception) {
+                _uiState.value = DashboardUiState(
+                    isLoading = false,
+                    summary = null,
+                    errorMessage = e.message ?: "Failed to load dashboard."
+                )
+            }
         }
     }
 
-    private fun computeSummary(items: List<PantryItem>): DashboardSummary {
+    private fun computeSummary(items: List<Item>): DashboardSummary {
         val today = LocalDate.now()
         val soonThreshold = today.plusDays(3)
 
@@ -52,17 +61,6 @@ class DashboardViewModel : ViewModel() {
             expiringToday = expiringToday,
             expiringSoon = expiringSoon,
             totalItems = items.size
-        )
-    }
-
-    private fun fakeItems(): List<PantryItem> {
-        val today = LocalDate.now()
-        return listOf(
-            PantryItem(name = "Milk", expiryDate = today),
-            PantryItem(name = "Eggs", expiryDate = today.plusDays(2)),
-            PantryItem(name = "Spinach", expiryDate = today.plusDays(3)),
-            PantryItem(name = "Pasta", expiryDate = today.plusDays(10)),
-            PantryItem(name = "Chicken", expiryDate = today.plusDays(1))
         )
     }
 }
