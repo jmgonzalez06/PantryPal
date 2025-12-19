@@ -25,7 +25,12 @@ class FirestoreItemRepository(
             .collection("users")
             .document(userId)
             .collection("items")
-            .add(item)
+            .add(mapOf(
+                "name" to item.name,
+                "expiryDate" to item.expiryDate,
+                "quantity" to item.quantity,
+                "zoneId" to item.zoneId
+            ))
             .await()
     }
 
@@ -35,7 +40,12 @@ class FirestoreItemRepository(
             .document(userId)
             .collection("items")
             .document(item.id)
-            .set(item)
+            .set(mapOf(
+                "name" to item.name,
+                "expiryDate" to item.expiryDate,
+                "quantity" to item.quantity,
+                "zoneId" to item.zoneId
+            ))
             .await()
     }
 
