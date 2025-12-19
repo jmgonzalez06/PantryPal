@@ -2,16 +2,19 @@ package com.jose.pantrypal.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jose.pantrypal.items.FakeItemRepository
+import com.jose.pantrypal.items.FirestoreItemRepository
 import com.jose.pantrypal.items.ItemRepository
 import com.jose.pantrypal.storage.StorageUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
+
+
 
 class InventoryViewModel(
-    private val itemRepository: ItemRepository = FakeItemRepository()
+    private val itemRepository: ItemRepository = FirestoreItemRepository()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState(isLoading = true))
     val uiState: StateFlow<InventoryUiState> = _uiState.asStateFlow()
@@ -25,7 +28,10 @@ class InventoryViewModel(
         // TODO: load items and storage zones
         viewModelScope.launch {
             try {
-                val items = itemRepository.getItemsForUser(userId = "placeholder")
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                    ?: throw IllegalStateException("User not logged in")
+
+                val items = itemRepository.getItemsForUser(userId)
 
                 _uiState.value = _uiState.value.copy(
                     items = items,

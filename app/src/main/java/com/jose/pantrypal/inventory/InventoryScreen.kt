@@ -41,6 +41,7 @@ import com.jose.pantrypal.items.FakeItemRepository
 import com.jose.pantrypal.items.Item
 import com.jose.pantrypal.items.ItemRepository
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +89,16 @@ fun InventoryScreen(
 
 @Composable
 fun InventoryItemCard(item: Item) {
-    val daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), item.expiryDate)
+    val expiryLocalDate = item.expiryDate
+        ?.toDate()
+        ?.toInstant()
+        ?.atZone(ZoneId.systemDefault())
+        ?.toLocalDate()
+
+    val daysRemaining = expiryLocalDate?.let {
+        ChronoUnit.DAYS.between(LocalDate.now(), it)
+    } ?: 0
+
     val indicatorColor = when {
         daysRemaining < 0 -> Color(0xFFD32F2F)
         daysRemaining < 3 -> Color(0xFFFBC02D)

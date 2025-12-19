@@ -48,9 +48,16 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    // Firebase BOM + Authentication
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
+    // Firebase Authentication (explicit version)
+    implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
+
+    // Firebase Firestore (explicit version)
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
+
+    // Coroutine support for Firebase Task.await()
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

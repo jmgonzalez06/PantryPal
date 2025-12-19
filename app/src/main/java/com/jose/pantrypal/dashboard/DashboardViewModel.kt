@@ -2,7 +2,8 @@ package com.jose.pantrypal.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jose.pantrypal.items.FakeItemRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.jose.pantrypal.items.FirestoreItemRepository
 import com.jose.pantrypal.items.Item
 import com.jose.pantrypal.items.ItemRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,9 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 
 class DashboardViewModel(
-    private val itemRepository: ItemRepository = FakeItemRepository()
+    private val itemRepository: ItemRepository = FirestoreItemRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState(isLoading = true))
@@ -27,8 +29,10 @@ class DashboardViewModel(
 
         viewModelScope.launch {
             try {
-                // TODO: pass the real userId when FirestoreItemRepository is implemented
-                val items = itemRepository.getItemsForUser(userId = "placeholder")
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                    ?: throw IllegalStateException("User not logged in")
+
+                val items = itemRepository.getItemsForUser(userId)
                 val summary = computeSummary(items)
 
                 _uiState.value = DashboardUiState(
@@ -50,11 +54,20 @@ class DashboardViewModel(
         val today = LocalDate.now()
         val soonThreshold = today.plusDays(3)
 
-        val expiringToday = items.count { it.expiryDate.isEqual(today) }
+        fun Item.toLocalDate(): LocalDate? =
+            this.expiryDate
+                ?.toDate()
+                ?.toInstant()
+                ?.atZone(ZoneId.systemDefault())
+                ?.toLocalDate()
 
-        val expiringSoon = items.count { item ->
-            (item.expiryDate.isAfter(today) || item.expiryDate.isEqual(today)) &&
-                    (item.expiryDate.isBefore(soonThreshold) || item.expiryDate.isEqual(soonThreshold))
+        val expiringToday = items.count { it.toLocalDate() == today }
+
+        val expiringSoon = items.count {
+            val date = it.toLocalDate()
+            date != null &&
+                    (date.isAfter(today) || date.isEqual(today)) &&
+                    (date.isBefore(soonThreshold) || date.isEqual(soonThreshold))
         }
 
         return DashboardSummary(
