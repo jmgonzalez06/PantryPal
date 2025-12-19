@@ -9,6 +9,7 @@ import com.jose.pantrypal.storage.StorageUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
 import com.jose.pantrypal.items.Item
@@ -21,6 +22,7 @@ class InventoryViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState(isLoading = true))
     val uiState: StateFlow<InventoryUiState> = _uiState.asStateFlow()
+    private var allItems: List<Item> = emptyList()
 
     init {
         refresh()
@@ -35,13 +37,14 @@ class InventoryViewModel(
                     ?: throw IllegalStateException("User not logged in")
 
                 val items = itemRepository.getItemsForUser(userId)
-                val allItems = itemRepository.getItemsForUser(userId)
+                allItems = items
 
                 _uiState.value = _uiState.value.copy(
-                    items = items,
+                    items = allItems,
                     isLoading = false,
                     errorMessage = null
                 )
+                applyFilters()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -142,45 +145,22 @@ class InventoryViewModel(
         return uiState.value.items.firstOrNull { it.id == itemId }
     }
 
-    // Search and Filters
-    fun onSearchQueryChange(query: String) {
-        _uiState.value = _uiState.value.copy(searchQuery = query)
-        applyFilters()
-    }
-
-    fun onZoneFilterChange(zoneId: String?) {
-        val newZoneId = if (_uiState.value.selectedZoneId == zoneId) null else zoneId
-        _uiState.value = _uiState.value.copy(selectedZoneId = newZoneId)
-        applyFilters()
-    }
-
-    fun onSortOptionChanged(sortOption: SortOption) {
-        _uiState.value = _uiState.value.copy(sortOption = sortOption)
+    fun updateSearchQuery(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
         applyFilters()
     }
 
     private fun applyFilters() {
-        val current = _uiState.value
-        var result = current.items
+        val query = _uiState.value.searchQuery.trim()
 
-        // Sort by selected Zone
-        if (current.selectedZoneId != null) {
-            result = result.filter { it.zoneId == current.selectedZoneId }
-        }
-
-        // Sort by Search Query; Still buggy
-        if (current.searchQuery.isNotEmpty()) {
-            result = result.filter { it.name.contains(current.searchQuery, ignoreCase = true) }
+        val filtered = if (query.isBlank()) {
+            allItems
         } else {
-            _uiState.value = current.copy(items = current.allItems)
+            allItems.filter { it.name.contains(query, ignoreCase = true) }
         }
 
-        result = when (current.sortOption) {
-            SortOption.EXPIRY_ASC -> result.sortedBy { it.expiryDate }
-            SortOption.EXPIRY_DESC -> result.sortedByDescending { it.expiryDate }
-            else -> result.sortedBy { it.name }
-        }
-
-        _uiState.value = current.copy(items = result)
+        _uiState.value = _uiState.value.copy(items = filtered)
     }
+
+    // TODO: Add search function (probably similar to UserDirectory project) and filters (sorting or by zone?)
 }
