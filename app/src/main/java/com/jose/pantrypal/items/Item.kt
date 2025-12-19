@@ -6,5 +6,7 @@ import java.time.LocalDate
 data class Item(
     val id: String = "",
     val name: String = "",
-    val expiryDate: Timestamp? = null
+    val expiryDate: Timestamp? = null,
+    val quantity: Int = 1,
+    val zoneId: String? = null
 )
