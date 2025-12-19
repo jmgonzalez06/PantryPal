@@ -1,5 +1,6 @@
 package com.jose.pantrypal.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -29,12 +30,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.jose.pantrypal.auth.FirebaseAuthRepository
 import com.jose.pantrypal.inventory.InventoryViewModel
 import com.jose.pantrypal.inventory.ItemDetailScreen
+import com.jose.pantrypal.inventory.AddItemScreen
+
 
 data class BottomNavItem(
     val route: String,
     val label: String
 )
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun PantryPalApp() {
     val authRepository = remember {
@@ -130,16 +134,14 @@ fun PantryPalApp() {
                 )
             }
 
-            composable(
-                route = Routes.ITEM_DETAIL
-            ) { backStackEntry ->
+            composable(route = Routes.ITEM_DETAIL) {
+                backStackEntry ->
 
                 val itemId = backStackEntry.arguments
                     ?.getString("itemId")
 
                 val inventoryViewModel: InventoryViewModel =
                     viewModel(navController.getBackStackEntry(Routes.INVENTORY))
-
 
                 val item = itemId?.let { inventoryViewModel.getItemById(it) }
 
@@ -157,6 +159,16 @@ fun PantryPalApp() {
                 }
             }
 
+            composable(route = Routes.ADD_ITEM) {
+
+                val inventoryViewModel: InventoryViewModel =
+                    viewModel(navController.getBackStackEntry(Routes.INVENTORY))
+
+                AddItemScreen(
+                    viewModel = inventoryViewModel,
+                    onItemAdded = { navController.popBackStack() }
+                )
+            }
 
             composable(Routes.DASHBOARD) {
                 DashboardScreen(
@@ -182,6 +194,9 @@ fun PantryPalApp() {
                 InventoryScreen(
                     onItemClick = { itemId ->
                         navController.navigate(Routes.itemDetail(itemId))
+                    },
+                    onAddItemClick = {
+                        navController.navigate(Routes.ADD_ITEM)
                     }
                 )
             }
