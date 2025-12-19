@@ -44,7 +44,7 @@ fun StorageScreen() {
     Scaffold(
         topBar = { TopAppBar( title = { Text("Storage Zones") } ) },
         floatingActionButton = {
-            FloatingActionButton( onClick = { showAddDialog = true }) {
+            FloatingActionButton( onClick = {  }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add New Zone")
             }
         }
@@ -56,13 +56,10 @@ fun StorageScreen() {
             items(state.zones.size) { index ->
                 StorageZoneCard(
                     zone = state.zones[index],
-                    onDelete = { storageViewModel.deleteZone(state.zones[index].id) }
+                    onDelete = { storageViewModel.deleteZone(state.zones[index]) }
                 )
                 Spacer(Modifier.height(8.dp))
             }
-        }
-        if (showAddDialog) {
-          // Creation of the new zone dialog
         }
     }
 }
@@ -78,7 +75,7 @@ fun StorageZoneCard(zone: StorageZone, onDelete: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = zone.name, style = MaterialTheme.typography.titleMedium)
+            Text(text = zone.zoneName, style = MaterialTheme.typography.titleMedium)
             IconButton(onClick = onDelete) {
                 Icon(Icons.Filled.Delete, contentDescription = "Delete Zone")
             }

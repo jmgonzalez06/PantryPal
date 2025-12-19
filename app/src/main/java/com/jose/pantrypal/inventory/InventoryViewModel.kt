@@ -141,7 +141,44 @@ class InventoryViewModel(
         return uiState.value.items.firstOrNull { it.id == itemId }
     }
 
+    // Search and Filters
+    fun onSearchQueryChange(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+        applyFilters()
+    }
 
+    fun onZoneFilterChange(zoneId: String?) {
+        val newZoneId = if (_uiState.value.selectedZoneId == zoneId) null else zoneId
+        _uiState.value = _uiState.value.copy(selectedZoneId = newZoneId)
+        applyFilters()
+    }
 
-    // TODO: Add search function (probably similar to UserDirectory project) and filters (sorting or by zone?)
+    fun onSortOptionChanged(sortOption: SortOption) {
+        _uiState.value = _uiState.value.copy(sortOption = sortOption)
+        applyFilters()
+    }
+
+    private fun applyFilters() {
+        val current = _uiState.value
+        var result = current.items
+
+        // Sort by selected Zone
+        if (current.selectedZoneId != null) {
+            result = result.filter { it.zoneId == current.selectedZoneId }
+        }
+
+        // Sort by Search Query
+        if (current.searchQuery.isNotEmpty()) {
+            result = result.filter { it.name.contains(current.searchQuery, ignoreCase = true) }
+
+        }
+
+        result = when (current.sortOption) {
+            SortOption.EXPIRY_ASC -> result.sortedBy { it.expiryDate }
+            SortOption.EXPIRY_DESC -> result.sortedByDescending { it.expiryDate }
+            else -> result.sortedBy { it.name }
+        }
+
+        _uiState.value = current.copy(filteredItems = result)
+    }
 }

@@ -1,6 +1,5 @@
 package com.jose.pantrypal.inventory
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,14 +13,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jose.pantrypal.items.FakeItemRepository
@@ -44,6 +49,7 @@ import com.jose.pantrypal.items.ItemRepository
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import androidx.compose.material.icons.filled.Sort
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,15 +82,54 @@ fun InventoryScreen(
         Column(
             Modifier.padding(padding)
         ) {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { },
-                label = { ("Search Pantry") },
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                leadingIcon = { Icon(Icons.Default.Search, null) }
-            )
+            Row(
+                Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    label = { Text("Search Pantry") },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    leadingIcon = { Icon(Icons.Default.Search, null) }
+                )
 
-            // TODO: Make Filters for Search Bar
+                IconButton(onClick = {
+                    val nextSort = when (uiState.sortOption) {
+                        SortOption.EXPIRY_ASC -> SortOption.EXPIRY_DESC
+                        SortOption.EXPIRY_DESC -> SortOption.EXPIRY_ASC
+                    }
+                    viewModel.onSortOptionChanged(nextSort)
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Sort,
+                        contentDescription = "Sort"
+                    )
+                }
+            }
+
+            Row(
+                Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                FilterChip(
+                    selected = uiState.selectedZoneId == null,
+                    onClick = { viewModel.onZoneFilterChange(null) },
+                    label = { Text("All Zones")}
+                )
+                Spacer(Modifier.width(8.dp))
+                // TODO: Add Zones Repository
+                uiState.storageZones.forEach { zone ->
+                    FilterChip(
+                        selected = uiState.selectedZoneId == zone.zoneName,
+                        onClick = { viewModel.onZoneFilterChange(zone.zoneName) },
+                        label = { Text(zone.zoneName) }
+                    )
+                    Spacer(Modifier.width(8.dp))
+                }
+            }
 
             LazyColumn(
                 contentPadding = PaddingValues(16.dp)
@@ -139,8 +184,8 @@ fun InventoryItemCard(item: Item,
                     .padding(16.dp)
                     .weight(1f)
             ) {
-                Text(item.name, style = MaterialTheme.typography.titleMedium)
-                // TODO: Add Quantity Later
+                Text(item.name, style = MaterialTheme.typography.titleMedium, color = indicatorColor)
+                Text("Quantity: ${item.quantity}", style = MaterialTheme.typography.bodySmall)
                 Text("Expires in $daysRemaining days", style = MaterialTheme.typography.bodySmall)
             }
         }

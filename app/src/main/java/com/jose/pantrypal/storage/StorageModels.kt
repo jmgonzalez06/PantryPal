@@ -3,8 +3,7 @@ package com.jose.pantrypal.storage
 import java.security.Timestamp
 
 data class StorageZone(
-    val id: String = "",
-    val name: String = "",
+    val zoneName: String = "",
     val createdAt: Timestamp,
 )
 
