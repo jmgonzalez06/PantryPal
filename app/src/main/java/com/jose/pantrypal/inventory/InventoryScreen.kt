@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
@@ -47,11 +48,21 @@ import java.time.temporal.ChronoUnit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen(
+    onItemClick: (String) -> Unit,
     viewModel : InventoryViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showAddItemDialog by remember { mutableStateOf(false) }
 
+    if (showAddItemDialog) {
+        AddItemScreen(
+            viewModel = viewModel,
+            onItemAdded = {
+                showAddItemDialog = false
+            }
+        )
+        return
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -79,7 +90,12 @@ fun InventoryScreen(
                 contentPadding = PaddingValues(16.dp)
             ) {
                 items(uiState.items.size) { index ->
-                    InventoryItemCard(item = uiState.items[index])
+                    InventoryItemCard(
+                        item = uiState.items[index],
+                        onClick = {
+                            onItemClick(uiState.items[index].id)
+                        }
+                    )
                     Spacer(Modifier.height(8.dp))
                 }
             }
@@ -88,7 +104,8 @@ fun InventoryScreen(
 }
 
 @Composable
-fun InventoryItemCard(item: Item) {
+fun InventoryItemCard(item: Item,
+                      onClick: () -> Unit) {
     val expiryLocalDate = item.expiryDate
         ?.toDate()
         ?.toInstant()
@@ -109,7 +126,9 @@ fun InventoryItemCard(item: Item) {
      */
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

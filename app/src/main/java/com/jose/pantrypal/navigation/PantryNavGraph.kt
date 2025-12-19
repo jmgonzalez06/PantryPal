@@ -23,8 +23,12 @@ import com.jose.pantrypal.inventory.InventoryScreen
 import com.jose.pantrypal.profile.ProfileRoute
 import com.jose.pantrypal.storage.StorageScreen
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.jose.pantrypal.auth.FirebaseAuthRepository
+import com.jose.pantrypal.inventory.InventoryViewModel
+import com.jose.pantrypal.inventory.ItemDetailScreen
 
 data class BottomNavItem(
     val route: String,
@@ -126,6 +130,34 @@ fun PantryPalApp() {
                 )
             }
 
+            composable(
+                route = Routes.ITEM_DETAIL
+            ) { backStackEntry ->
+
+                val itemId = backStackEntry.arguments
+                    ?.getString("itemId")
+
+                val inventoryViewModel: InventoryViewModel =
+                    viewModel(navController.getBackStackEntry(Routes.INVENTORY))
+
+
+                val item = itemId?.let { inventoryViewModel.getItemById(it) }
+
+                if (item != null) {
+                    ItemDetailScreen(
+                        item = item,
+                        viewModel = inventoryViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                } else {
+                    Text(
+                        text = "Loading item...",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+
             composable(Routes.DASHBOARD) {
                 DashboardScreen(
                     onExpiringTodayClick = {
@@ -147,7 +179,11 @@ fun PantryPalApp() {
             }
 
             composable(Routes.INVENTORY) {
-                InventoryScreen()
+                InventoryScreen(
+                    onItemClick = { itemId ->
+                        navController.navigate(Routes.itemDetail(itemId))
+                    }
+                )
             }
 
             composable(Routes.STORAGE) {
