@@ -3,6 +3,7 @@ package com.jose.pantrypal.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.jose.pantrypal.items.expiryAsLocalDate
 import com.jose.pantrypal.items.FirestoreItemRepository
 import com.jose.pantrypal.items.Item
 import com.jose.pantrypal.items.ItemRepository
@@ -11,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.ZoneId
 
 class DashboardViewModel(
     private val itemRepository: ItemRepository = FirestoreItemRepository()
@@ -54,20 +54,13 @@ class DashboardViewModel(
         val today = LocalDate.now()
         val soonThreshold = today.plusDays(3)
 
-        fun Item.toLocalDate(): LocalDate? =
-            this.expiryDate
-                ?.toDate()
-                ?.toInstant()
-                ?.atZone(ZoneId.systemDefault())
-                ?.toLocalDate()
-
-        val expiringToday = items.count { it.toLocalDate() == today }
+        val expiringToday = items.count { it.expiryAsLocalDate() == today }
 
         val expiringSoon = items.count {
-            val date = it.toLocalDate()
+            val date = it.expiryAsLocalDate()
             date != null &&
-                    (date.isAfter(today) || date.isEqual(today)) &&
-                    (date.isBefore(soonThreshold) || date.isEqual(soonThreshold))
+                    !date.isBefore(today) &&
+                    !date.isAfter(soonThreshold)
         }
 
         return DashboardSummary(

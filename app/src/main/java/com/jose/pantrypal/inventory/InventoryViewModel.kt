@@ -9,6 +9,7 @@ import com.jose.pantrypal.storage.StorageUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
 import com.jose.pantrypal.items.Item
@@ -21,6 +22,7 @@ class InventoryViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState(isLoading = true))
     val uiState: StateFlow<InventoryUiState> = _uiState.asStateFlow()
+    private var allItems: List<Item> = emptyList()
 
     init {
         refresh()
@@ -35,12 +37,14 @@ class InventoryViewModel(
                     ?: throw IllegalStateException("User not logged in")
 
                 val items = itemRepository.getItemsForUser(userId)
+                allItems = items
 
                 _uiState.value = _uiState.value.copy(
-                    items = items,
+                    items = allItems,
                     isLoading = false,
                     errorMessage = null
                 )
+                applyFilters()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -141,7 +145,22 @@ class InventoryViewModel(
         return uiState.value.items.firstOrNull { it.id == itemId }
     }
 
+    fun updateSearchQuery(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+        applyFilters()
+    }
 
+    private fun applyFilters() {
+        val query = _uiState.value.searchQuery.trim()
+
+        val filtered = if (query.isBlank()) {
+            allItems
+        } else {
+            allItems.filter { it.name.contains(query, ignoreCase = true) }
+        }
+
+        _uiState.value = _uiState.value.copy(items = filtered)
+    }
 
     // TODO: Add search function (probably similar to UserDirectory project) and filters (sorting or by zone?)
 }

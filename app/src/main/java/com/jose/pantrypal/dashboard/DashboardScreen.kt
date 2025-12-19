@@ -56,11 +56,19 @@ fun DashboardScreen(
 
         when {
             state.isLoading -> {
-                CircularProgressIndicator()
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
+                }
             }
 
             state.errorMessage != null -> {
-                Text(text = state.errorMessage ?: "Unknown error")
+                Text(
+                    text = state.errorMessage ?: "Unknown error",
+                    color = MaterialTheme.colorScheme.error
+                )
                 Spacer(Modifier.height(12.dp))
                 Button(onClick = dashboardViewModel::refresh) {
                     Text("Retry")

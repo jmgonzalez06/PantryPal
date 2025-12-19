@@ -13,6 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jose.pantrypal.auth.AuthViewModel
 
@@ -23,9 +27,14 @@ fun ProfileRoute(
     val authViewModel: AuthViewModel = viewModel()
     val userEmail = authViewModel.currentUser?.email
 
+    var signingOut by remember { mutableStateOf(false) }
+
     ProfileScreen(
         userEmail = userEmail,
+        isSigningOut = signingOut,
         onSignOutClick = {
+            if (signingOut) return@ProfileScreen
+            signingOut = true
             authViewModel.signOut()
             onSignedOut()
         }
@@ -35,6 +44,7 @@ fun ProfileRoute(
 @Composable
 fun ProfileScreen(
     userEmail: String?,
+    isSigningOut: Boolean,
     onSignOutClick: () -> Unit
 ) {
     Column(
@@ -55,9 +65,10 @@ fun ProfileScreen(
 
         Button(
             onClick = onSignOutClick,
+            enabled = !isSigningOut,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Sign Out")
+            Text(if (isSigningOut) "Signing Out..." else "Sign Out")
         }
     }
 }
