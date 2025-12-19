@@ -83,17 +83,20 @@ fun InventoryScreen(
             Modifier.padding(padding)
         ) {
             Row(
-                Modifier.fillMaxWidth().padding(16.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = uiState.searchQuery,
-                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    onValueChange = viewModel::onSearchQueryChange ,
                     label = { Text("Search Pantry") },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier.weight(1f),
                     leadingIcon = { Icon(Icons.Default.Search, null) }
                 )
 
+                // Sort from Expiry Ascending or Descending
                 IconButton(onClick = {
                     val nextSort = when (uiState.sortOption) {
                         SortOption.EXPIRY_ASC -> SortOption.EXPIRY_DESC
@@ -105,29 +108,6 @@ fun InventoryScreen(
                         imageVector = Icons.AutoMirrored.Filled.Sort,
                         contentDescription = "Sort"
                     )
-                }
-            }
-
-            Row(
-                Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(16.dp)
-                    .fillMaxWidth()
-            ) {
-                FilterChip(
-                    selected = uiState.selectedZoneId == null,
-                    onClick = { viewModel.onZoneFilterChange(null) },
-                    label = { Text("All Zones")}
-                )
-                Spacer(Modifier.width(8.dp))
-                // TODO: Add Zones Repository
-                uiState.storageZones.forEach { zone ->
-                    FilterChip(
-                        selected = uiState.selectedZoneId == zone.zoneName,
-                        onClick = { viewModel.onZoneFilterChange(zone.zoneName) },
-                        label = { Text(zone.zoneName) }
-                    )
-                    Spacer(Modifier.width(8.dp))
                 }
             }
 
@@ -162,13 +142,10 @@ fun InventoryItemCard(item: Item,
     } ?: 0
 
     val indicatorColor = when {
-        daysRemaining < 0 -> Color(0xFFD32F2F)
+        daysRemaining <= 0 -> Color(0xFFD32F2F)
         daysRemaining < 3 -> Color(0xFFFBC02D)
         else -> Color.Green
     }
-    /* I have the colors here, but I don't know what kinda of indicator
-       Maybe text colors? Card background color is really jarring though.
-     */
 
     Card(
         modifier = Modifier

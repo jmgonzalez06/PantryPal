@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,7 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Timestamp
+import com.jose.pantrypal.storage.FirestoreStorageRepository
+import com.jose.pantrypal.storage.StorageRepository
+import com.jose.pantrypal.storage.StorageViewModel
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
@@ -30,13 +35,15 @@ import java.util.Date
 @Composable
 fun AddItemScreen(
     viewModel: InventoryViewModel,
-    onItemAdded: () -> Unit
+    onItemAdded: () -> Unit,
 ) {
     var dateError by remember { mutableStateOf<String?>(null) }
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("1") }
     var expiryDate by remember { mutableStateOf<Timestamp?>(null) }
     var zoneId by remember { mutableStateOf("pantry") }
+    val storageViewModel: StorageViewModel = viewModel()
+    val state by storageViewModel.uiState.collectAsState()
 
 
     val context = LocalContext.current
@@ -115,11 +122,11 @@ fun AddItemScreen(
         Spacer(Modifier.height(8.dp))
 
         Text("Storage Zone")
-        listOf("fridge", "freezer", "pantry").forEach { zone ->
+        state.zones.forEach { zone ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = zoneId == zone,
-                    onClick = { zoneId = zone }
+                    selected = zoneId == zone.zoneName,
+                    onClick = { zoneId = zone.zoneName }
                 )
                 Text(zone.replaceFirstChar { it.uppercase() })
             }

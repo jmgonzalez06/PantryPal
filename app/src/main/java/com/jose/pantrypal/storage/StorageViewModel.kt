@@ -56,8 +56,7 @@ class StorageViewModel(
         }
         viewModelScope.launch {
             try {
-                val currentTimestamp = System.currentTimeMillis()
-                val newZone = StorageZone(name, currentTimestamp)
+                val newZone = StorageZone(name, name)
                 storageRepository.addZone(userId, newZone)
                 refresh()
             } catch (e: Exception) {
@@ -68,7 +67,7 @@ class StorageViewModel(
         }
     }
 
-    fun deleteZone(zone: StorageZone) {
+    fun deleteZone(userId: String, zone: StorageZone) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
             ?: return
         viewModelScope.launch {
@@ -103,5 +102,9 @@ class StorageViewModel(
                 )
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 }

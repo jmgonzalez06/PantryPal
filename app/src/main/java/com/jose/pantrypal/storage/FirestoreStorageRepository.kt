@@ -13,11 +13,10 @@ class FirestoreStorageRepository(
             .collection("users")
             .document(userId)
             .collection("storageZones")
-            .orderBy("createdAt")
             .get()
             .await()
         return snapshot.documents.mapNotNull { document ->
-            document.toObject(StorageZone::class.java)?.copy(id = document.id)
+            document.toObject(StorageZone::class.java)?.copy(zoneName = document.id)
         }
     }
 
@@ -26,8 +25,9 @@ class FirestoreStorageRepository(
             .collection("users")
             .document(userId)
             .collection("storageZones")
-            .add(mapOf(
-                "name" to zone.zoneName
+            .document(zone.zoneName)
+            .set(mapOf(
+                "id" to zone.zoneName
             ))
             .await()
     }
@@ -39,7 +39,7 @@ class FirestoreStorageRepository(
             .collection("storageZones")
             .document(zone.zoneName)
             .set(mapOf(
-                "name" to zone.zoneName
+                "id" to zone.zoneName
             ))
             .await()
     }

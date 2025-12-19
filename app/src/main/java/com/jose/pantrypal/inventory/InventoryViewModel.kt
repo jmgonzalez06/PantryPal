@@ -35,6 +35,7 @@ class InventoryViewModel(
                     ?: throw IllegalStateException("User not logged in")
 
                 val items = itemRepository.getItemsForUser(userId)
+                val allItems = itemRepository.getItemsForUser(userId)
 
                 _uiState.value = _uiState.value.copy(
                     items = items,
@@ -167,10 +168,11 @@ class InventoryViewModel(
             result = result.filter { it.zoneId == current.selectedZoneId }
         }
 
-        // Sort by Search Query
+        // Sort by Search Query; Still buggy
         if (current.searchQuery.isNotEmpty()) {
             result = result.filter { it.name.contains(current.searchQuery, ignoreCase = true) }
-
+        } else {
+            _uiState.value = current.copy(items = current.allItems)
         }
 
         result = when (current.sortOption) {
@@ -179,6 +181,6 @@ class InventoryViewModel(
             else -> result.sortedBy { it.name }
         }
 
-        _uiState.value = current.copy(filteredItems = result)
+        _uiState.value = current.copy(items = result)
     }
 }

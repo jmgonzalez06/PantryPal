@@ -6,10 +6,10 @@ import com.jose.pantrypal.storage.StorageZone
 
 data class InventoryUiState(
     val items: List<Item> = emptyList(),
+    val allItems: List<Item> = emptyList(),
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val selectedZoneId: String? = null,
-    val filteredItems: List<Item> = emptyList(),
     val storageZones: List<StorageZone> = emptyList(),
     val searchQuery: String = "",
     val sortOption: SortOption = SortOption.EXPIRY_ASC,
