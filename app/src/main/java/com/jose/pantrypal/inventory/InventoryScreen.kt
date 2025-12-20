@@ -80,7 +80,9 @@ fun InventoryScreen(
             ExtendedFloatingActionButton(
                 text = { Text("Add Item") },
                 icon = { Icon(Icons.Default.Add, contentDescription = "Add Item") },
-                onClick = onAddItemClick
+                onClick = onAddItemClick,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         }
     ) { padding ->
