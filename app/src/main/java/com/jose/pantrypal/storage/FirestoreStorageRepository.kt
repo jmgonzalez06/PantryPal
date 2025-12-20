@@ -1,7 +1,6 @@
 package com.jose.pantrypal.storage
 
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 class FirestoreStorageRepository(
@@ -15,8 +14,19 @@ class FirestoreStorageRepository(
             .collection("storageZones")
             .get()
             .await()
+
         return snapshot.documents.mapNotNull { document ->
-            document.toObject(StorageZone::class.java)?.copy(zoneName = document.id)
+            val id = document.getString("id")
+            val zoneName = document.getString("zoneName")
+
+            if (id != null && zoneName != null) {
+                StorageZone(
+                    id = id,
+                    zoneName = zoneName
+                )
+            } else {
+                null
+            }
         }
     }
 
@@ -25,10 +35,13 @@ class FirestoreStorageRepository(
             .collection("users")
             .document(userId)
             .collection("storageZones")
-            .document(zone.zoneName)
-            .set(mapOf(
-                "id" to zone.zoneName
-            ))
+            .document(zone.id)
+            .set(
+                mapOf(
+                    "id" to zone.id,
+                    "zoneName" to zone.zoneName
+                )
+            )
             .await()
     }
 
@@ -37,19 +50,22 @@ class FirestoreStorageRepository(
             .collection("users")
             .document(userId)
             .collection("storageZones")
-            .document(zone.zoneName)
-            .set(mapOf(
-                "id" to zone.zoneName
-            ))
+            .document(zone.id)
+            .set(
+                mapOf(
+                    "id" to zone.id,
+                    "zoneName" to zone.zoneName
+                )
+            )
             .await()
     }
 
-    override suspend fun deleteZone(userId: String, zoneName: String) {
+    override suspend fun deleteZone(userId: String, zoneId: String) {
         firestore
             .collection("users")
             .document(userId)
             .collection("storageZones")
-            .document(zoneName)
+            .document(zoneId)
             .delete()
             .await()
     }

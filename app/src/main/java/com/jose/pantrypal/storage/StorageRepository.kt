@@ -6,5 +6,5 @@ interface StorageRepository {
     // CRUD Operations
     suspend fun addZone(userId: String, zone: StorageZone)
     suspend fun updateZone(userId: String, zone: StorageZone)
-    suspend fun deleteZone(userId: String, zoneName: String)
+    suspend fun deleteZone(userId: String, zoneId: String)
 }

@@ -10,6 +10,8 @@ import com.jose.pantrypal.items.ItemRepository
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
+
 
 
 class StorageViewModel(
@@ -62,23 +64,32 @@ class StorageViewModel(
         updateZone(uid, zone)
     }
 
-    fun renameZone(oldZone: StorageZone, newName: String) {
+    fun renameZone(zone: StorageZone, newName: String) {
         val uid = userId ?: return
         val trimmed = newName.trim()
+
         if (trimmed.isBlank()) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Zone name cannot be blank.")
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Zone name cannot be blank."
+            )
             return
         }
+
         viewModelScope.launch {
             try {
-                storageRepository.addZone(uid, StorageZone(trimmed, trimmed))
-                storageRepository.deleteZone(uid, oldZone.zoneName)
+                storageRepository.updateZone(
+                    uid,
+                    zone.copy(zoneName = trimmed)
+                )
                 refresh()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = "Failed to rename storage zone.")
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to rename storage zone."
+                )
             }
         }
     }
+
 
     fun addZone(userId: String, name: String) {
         if (name.isBlank()) {
@@ -87,7 +98,11 @@ class StorageViewModel(
         }
         viewModelScope.launch {
             try {
-                val newZone = StorageZone(name, name)
+                val newZone = StorageZone(
+                    id = UUID.randomUUID().toString(),
+                    zoneName = name
+                )
+
                 storageRepository.addZone(userId, newZone)
                 refresh()
             } catch (e: Exception) {
@@ -103,7 +118,7 @@ class StorageViewModel(
         viewModelScope.launch {
             try {
                 val allItems = itemRepository.getItemsForUser(userId)
-                val itemsInZone = allItems.filter { it.zoneId == zone.zoneName }
+                val itemsInZone = allItems.filter { it.zoneId == zone.id }
                 if (itemsInZone.isNotEmpty()) {
                     _uiState.value = _uiState.value.copy(
                         errorMessage = "Cannot delete zone with items present."
