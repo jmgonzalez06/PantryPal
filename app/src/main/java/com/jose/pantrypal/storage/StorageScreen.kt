@@ -55,9 +55,7 @@ fun StorageScreen(
     Scaffold(
         topBar = { TopAppBar( title = { Text("Storage Zones") } ) },
         floatingActionButton = {
-            FloatingActionButton( onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary) {
+            FloatingActionButton( onClick = { showAddDialog = true }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add New Zone")
             }
         }
