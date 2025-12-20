@@ -22,19 +22,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import android.app.DatePickerDialog
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Timestamp
-import kotlinx.coroutines.launch
+import com.jose.pantrypal.storage.StorageViewModel
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
-import kotlinx.coroutines.delay
 
 @Composable
 fun ItemDetailScreen(
@@ -43,11 +44,36 @@ fun ItemDetailScreen(
     onBack: (String?) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
     var name by remember { mutableStateOf(item.name) }
     var quantity by remember { mutableStateOf(item.quantity.toString()) }
     var expiryDate by remember { mutableStateOf(item.expiryDate) }
-    var zoneId by remember { mutableStateOf(item.zoneId ?: "pantry") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val storageViewModel: StorageViewModel = viewModel()
+    val storageState by storageViewModel.uiState.collectAsState()
+    var zoneId by remember { mutableStateOf("pantry") }
+
+    fun norm(s: String?) = s?.trim()?.lowercase() ?: ""
+
+    LaunchedEffect(item.id) {
+        name = item.name
+        quantity = item.quantity.toString()
+        expiryDate = item.expiryDate
+        zoneId = item.zoneId ?: "pantry"
+    }
+
+
+    LaunchedEffect(storageState.zones) {
+        if (storageState.isLoading) return@LaunchedEffect
+
+        val current = norm(zoneId)
+        val exists = storageState.zones.any { zone ->
+            norm(zone.zoneName) == current || norm(zone.id) == current
+        }
+        if (!exists) {
+            zoneId = storageState.zones.firstOrNull()?.zoneName ?: "pantry"
+        }
+    }
+
 
     val context = LocalContext.current
     val today = LocalDate.now()
@@ -111,15 +137,22 @@ fun ItemDetailScreen(
             }
             Spacer(Modifier.height(8.dp))
 
-            // Zone selector (simple for now)
+            // Zone selector
             Text("Storage Zone")
-            listOf("fridge", "freezer", "pantry").forEach { zone ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = zoneId == zone,
-                        onClick = { zoneId = zone }
-                    )
-                    Text(zone.replaceFirstChar { it.uppercase() })
+
+            if (storageState.isLoading) {
+                Text("Loading zones...")
+            } else {
+                storageState.zones.forEach { zone ->
+                    val zoneKey = zone.zoneName.ifBlank { zone.id }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = norm(zoneId) == norm(zoneKey),
+                            onClick = { zoneId = zoneKey }
+                        )
+                        Text(zone.zoneName.ifBlank { zone.id })
+                    }
                 }
             }
 
@@ -159,14 +192,48 @@ fun ItemDetailScreen(
 
             Button(
                 onClick = {
-                    viewModel.deleteItem(item.id)
-                    onBack(item.name) // navigate immediately
+                    showDeleteDialog = true
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Delete Item")
             }
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showDeleteDialog = false
+                    },
+                    title = {
+                        Text("Delete Item")
+                    },
+                    text = {
+                        Text("Do you really want to delete \"${item.name}\"? This action cannot be undone.")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showDeleteDialog = false
+                                viewModel.deleteItem(item.id)
+                                onBack(item.name)
+                            }
+                        ) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(
+                            onClick = {
+                                showDeleteDialog = false
+                            }
+                        ) {
+                            Text("No")
+                        }
+                    }
+                )
+            }
+
+
 
         }
     }
