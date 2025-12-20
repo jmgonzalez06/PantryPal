@@ -58,8 +58,9 @@ class DashboardViewModel(
 
         val expiringSoon = items.count {
             val date = it.expiryAsLocalDate()
+            val start = today.plusDays(1)
             date != null &&
-                    !date.isBefore(today) &&
+                    !date.isBefore(start) &&
                     !date.isAfter(soonThreshold)
         }
 
