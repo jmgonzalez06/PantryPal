@@ -206,10 +206,6 @@ com.jose.pantrypal/
 
 ## Screenshots
 
-
-```
-## Screenshots
-
 ### Authentication
 
 | Light Mode | Dark Mode |
@@ -233,8 +229,6 @@ com.jose.pantrypal/
 | Light Mode | Dark Mode |
 |------------|-----------|
 | <img src="Screenshots/storage_light.png" width="300"/> | <img src="Screenshots/storage_dark.png" width="300"/> |
-
-```
 
 ---
 
