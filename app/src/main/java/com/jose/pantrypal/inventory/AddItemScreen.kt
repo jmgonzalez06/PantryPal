@@ -74,6 +74,7 @@ fun AddItemScreen(
         today.monthValue - 1,
         today.dayOfMonth
     )
+    datePickerDialog.datePicker.minDate = System.currentTimeMillis()
 
     Column(modifier = Modifier.padding(16.dp)) {
 

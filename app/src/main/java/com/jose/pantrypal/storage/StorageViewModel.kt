@@ -91,11 +91,9 @@ class StorageViewModel(
     }
 
     fun updateZone(userId: String, zoneName: StorageZone) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-            ?: return
         viewModelScope.launch {
             try {
-                storageRepository.updateZone(uid, zoneName)
+                storageRepository.updateZone(userId, zoneName)
                 refresh()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
