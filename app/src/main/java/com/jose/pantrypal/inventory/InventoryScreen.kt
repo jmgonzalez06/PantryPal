@@ -116,9 +116,9 @@ fun InventoryItemCard(item: Item,
     } ?: 0
 
     val indicatorColor = when {
-        daysRemaining < 0 -> Color(0xFFD32F2F)
+        daysRemaining <= 0 -> Color(0xFFD32F2F)
         daysRemaining < 3 -> Color(0xFFFBC02D)
-        else -> Color.Green
+        else -> Color(0xFF388E3C)
     }
 
     Card(
