@@ -104,6 +104,20 @@ class InventoryViewModel(
     }
 
     fun updateItem(item: Item) {
+        val today = LocalDate.now()
+        val expiryLocalDate = item.expiryDate
+            ?.toDate()
+            ?.toInstant()
+            ?.atZone(ZoneId.systemDefault())
+            ?.toLocalDate()
+
+        if (expiryLocalDate == null || expiryLocalDate.isBefore(today)) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Expiry date must be today or later"
+            )
+            return
+        }
+
         val uid = FirebaseAuth.getInstance().currentUser?.uid
             ?: return
 

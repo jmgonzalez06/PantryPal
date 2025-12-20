@@ -149,7 +149,13 @@ fun PantryPalApp() {
                     ItemDetailScreen(
                         item = item,
                         viewModel = inventoryViewModel,
-                        onBack = { navController.popBackStack() }
+                        onBack = { deletedItemName ->
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("item_deleted_name", deletedItemName)
+
+                            navController.popBackStack()
+                        }
                     )
                 } else {
                     Text(
@@ -192,6 +198,7 @@ fun PantryPalApp() {
 
             composable(Routes.INVENTORY) {
                 InventoryScreen(
+                    navController = navController,
                     onItemClick = { itemId ->
                         navController.navigate(Routes.itemDetail(itemId))
                     },
@@ -200,6 +207,7 @@ fun PantryPalApp() {
                     }
                 )
             }
+
 
             composable(Routes.STORAGE) {
                 StorageScreen()
