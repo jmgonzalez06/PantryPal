@@ -137,10 +137,11 @@ fun InventoryItemCard(item: Item,
 
     val daysRemaining = expiryLocalDate?.let {
         ChronoUnit.DAYS.between(LocalDate.now(), it)
-    } ?: 0
+    } ?: 0L
 
     val indicatorColor = when {
-        daysRemaining <= 0 -> Color(0xFFD32F2F)
+        daysRemaining < 0 -> Color(0xFFD32F2F)
+        daysRemaining == 0L -> Color(0xFFFBC02D)
         daysRemaining < 3 -> Color(0xFFFBC02D)
         else -> Color(0xFF388E3C)
     }
@@ -161,7 +162,7 @@ fun InventoryItemCard(item: Item,
             ) {
                 Text(item.name, style = MaterialTheme.typography.titleMedium)
                 Text("Quantity: ${item.quantity}", style = MaterialTheme.typography.bodySmall)
-                Text("Expires in $daysRemaining days", style = MaterialTheme.typography.bodySmall)
+                Text(expiryLabel(daysRemaining), style = MaterialTheme.typography.bodySmall)
             }
             Box(
                 Modifier
@@ -170,5 +171,15 @@ fun InventoryItemCard(item: Item,
                     .background(indicatorColor, shape = RoundedCornerShape(4.dp))
             )
         }
+    }
+}
+
+private fun expiryLabel(daysRemaining: Long): String {
+    return when {
+        daysRemaining == 0L -> "Expires today"
+        daysRemaining == 1L -> "Expires tomorrow"
+        daysRemaining > 1L -> "Expires in $daysRemaining days"
+        daysRemaining == -1L -> "Expired yesterday"
+        else -> "Expired ${-daysRemaining} days ago"
     }
 }
