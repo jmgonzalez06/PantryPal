@@ -150,6 +150,11 @@ class InventoryViewModel(
         applyFilters()
     }
 
+    fun onSortOptionChanged(sortOption: SortOption) {
+        _uiState.update { it.copy(sortOption = sortOption) }
+        applyFilters()
+    }
+
     private fun applyFilters() {
         val query = _uiState.value.searchQuery.trim()
 
@@ -159,8 +164,13 @@ class InventoryViewModel(
             allItems.filter { it.name.contains(query, ignoreCase = true) }
         }
 
-        _uiState.value = _uiState.value.copy(items = filtered)
-    }
+        val sorted = when (_uiState.value.sortOption) {
+            SortOption.EXPIRY_ASC -> filtered.sortedBy { it.expiryDate }
+            else -> filtered.sortedByDescending { it.expiryDate }
+        }
 
-    // TODO: Add search function (probably similar to UserDirectory project) and filters (sorting or by zone?)
+
+        _uiState.value = _uiState.value.copy(items = filtered)
+        _uiState.value = _uiState.value.copy(items = sorted)
+    }
 }

@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -28,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jose.pantrypal.items.Item
@@ -55,17 +58,31 @@ fun InventoryScreen(
         Column(
             Modifier.padding(padding)
         ) {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { newValue ->
-                    viewModel.updateSearchQuery(newValue)
-                },
-                label = { Text("Search Pantry") },
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
-            )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { newValue ->
+                        viewModel.updateSearchQuery(newValue)
+                    },
+                    label = { Text("Search Pantry") },
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
+                )
 
-            // TODO: Make Filters for Search Bar
+                IconButton(onClick = {
+                    val nextSort = when (uiState.sortOption) {
+                        SortOption.EXPIRY_ASC -> SortOption.EXPIRY_DESC
+                        SortOption.EXPIRY_DESC -> SortOption.EXPIRY_ASC
+                    }
+                    viewModel.onSortOptionChanged(nextSort)
+                }) {
+                    Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+                }
+            }
 
             LazyColumn(
                 contentPadding = PaddingValues(16.dp)
@@ -98,9 +115,6 @@ fun InventoryItemCard(item: Item,
         daysRemaining < 3 -> Color(0xFFFBC02D)
         else -> Color.Green
     }
-    /* I have the colors here, but I don't know what kinda of indicator
-       Maybe text colors? Card background color is really jarring though.
-     */
 
     Card(
         modifier = Modifier
@@ -116,8 +130,8 @@ fun InventoryItemCard(item: Item,
                     .padding(16.dp)
                     .weight(1f)
             ) {
-                Text(item.name, style = MaterialTheme.typography.titleMedium)
-                // TODO: Add Quantity Later
+                Text(item.name, style = MaterialTheme.typography.titleMedium, color = indicatorColor)
+                Text("Quantity: ${item.quantity}", style = MaterialTheme.typography.bodySmall)
                 Text("Expires in $daysRemaining days", style = MaterialTheme.typography.bodySmall)
             }
         }
