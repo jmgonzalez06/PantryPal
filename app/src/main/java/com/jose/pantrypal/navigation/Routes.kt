@@ -7,4 +7,7 @@ object Routes {
     const val INVENTORY = "inventory"
     const val STORAGE = "storage"
     const val PROFILE = "profile"
+    const val ADD_ITEM = "add_item"
+    const val ITEM_DETAIL = "item_detail/{itemId}"
+    fun itemDetail(itemId: String) = "item_detail/$itemId"
 }
