@@ -14,19 +14,35 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = PantryPrimaryDark,
     onPrimary = PantryOnPrimaryDark,
+    primaryContainer = PantryPrimaryContainerDark,
+    onPrimaryContainer = PantryOnPrimaryContainerDark,
+
     secondary = PantrySecondaryDark,
     onSecondary = PantryOnSecondaryDark,
+    secondaryContainer = PantrySecondaryContainerDark,
+    onSecondaryContainer = PantryOnSecondaryContainerDark,
+
     tertiary = PantryTertiaryDark,
-    onTertiary = PantryOnTertiaryDark
+    onTertiary = PantryOnTertiaryDark,
+    tertiaryContainer = PantryTertiaryContainerDark,
+    onTertiaryContainer = PantryOnTertiaryContainerDark
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = PantryPrimary,
     onPrimary = PantryOnPrimary,
+    primaryContainer = PantryPrimaryContainer,
+    onPrimaryContainer = PantryOnPrimaryContainer,
+
     secondary = PantrySecondary,
     onSecondary = PantryOnSecondary,
+    secondaryContainer = PantrySecondaryContainer,
+    onSecondaryContainer = PantryOnSecondaryContainer,
+
     tertiary = PantryTertiary,
-    onTertiary = PantryOnTertiary
+    onTertiary = PantryOnTertiary,
+    tertiaryContainer = PantryTertiaryContainer,
+    onTertiaryContainer = PantryOnTertiaryContainer
 )
 
 @Composable
