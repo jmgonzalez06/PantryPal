@@ -46,7 +46,8 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StorageScreen() {
+fun StorageScreen(
+) {
     val storageViewModel: StorageViewModel = viewModel()
     val state by storageViewModel.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }

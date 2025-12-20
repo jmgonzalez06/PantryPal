@@ -122,11 +122,11 @@ fun AddItemScreen(
         Spacer(Modifier.height(8.dp))
 
         Text("Storage Zone")
-        state.zones.forEach { zone ->
+        listOf("fridge", "freezer", "pantry").forEach { zone ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = zoneId == zone.zoneName,
-                    onClick = { zoneId = zone.zoneName }
+                    selected = zoneId == zone,
+                    onClick = { zoneId = zone }
                 )
                 Text(zone.replaceFirstChar { it.uppercase() })
             }

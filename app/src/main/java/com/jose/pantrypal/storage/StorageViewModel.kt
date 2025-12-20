@@ -72,8 +72,9 @@ class StorageViewModel(
             ?: return
         viewModelScope.launch {
             try {
-                val count = itemRepository.getItemsForUser(uid).size
-                if (count > 0) {
+                val allItems = itemRepository.getItemsForUser(uid)
+                val itemsInZone = allItems.filter { it.zoneId == zone.zoneName }
+                if (itemsInZone.isNotEmpty()) {
                     _uiState.value = _uiState.value.copy(
                         errorMessage = "Cannot delete zone with items present."
                     )
