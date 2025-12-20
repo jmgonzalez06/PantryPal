@@ -44,7 +44,7 @@ Implements Firebase Email/Password authentication with proper auth state managem
 * Summary cards showing:
 
     * Items expiring today
-    * Items expiring soon
+    * Items expiring soon (within 3 days)
     * Total pantry items
 * Real-time data pulled from Firestore
 * One-tap navigation from dashboard cards to inventory
@@ -59,7 +59,7 @@ The application uses Firebase Firestore with full CRUD operations on two entitie
     * Name
     * Quantity
     * Expiration date (DatePicker)
-    * Storage zone (Pantry / Fridge / Freezer)
+    * Storage zone (user-defined storage locations, example: Pantry / Fridge / Freezer)
 * Edit existing items
 * Delete items
 * Automatic inventory refresh after CRUD actions
@@ -67,7 +67,7 @@ The application uses Firebase Firestore with full CRUD operations on two entitie
 
 ### Storage Zones
 
-* Manage storage locations (Pantry, Fridge, Freezer)
+* Manage storage locations (user-defined storage locations, example: Pantry / Fridge / Freezer)
 * Add, rename, and delete zones
 * Validation to prevent deleting zones in use (if applicable)
 
@@ -167,6 +167,13 @@ com.jose.pantrypal/
 │
 └── profile/
     └── ProfileScreen.kt
+
+└── ui/
+    └── theme/
+        ├── Color.kt
+        ├── Theme.kt
+        └── Type.kt
+
 ```
 
 ---
@@ -199,19 +206,34 @@ com.jose.pantrypal/
 
 ## Screenshots
 
-*(Add screenshots)*
-
-Example structure:
 
 ```
-Screenshots/
-├── login.png
-├── dashboard.png
-├── inventory.png
-├── add_item.png
-├── item_detail.png
-├── storage_zones.png
-├── profile.png
+## Screenshots
+
+### Authentication
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <img src="Screenshots/login_light.png" width="300"/> | <img src="Screenshots/login_dark.png" width="300"/> |
+
+### Dashboard
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <img src="Screenshots/dashboard_light.png" width="300"/> | <img src="Screenshots/dashboard_dark.png" width="300"/> |
+
+### Inventory
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <img src="Screenshots/inventory_light.png" width="300"/> | <img src="Screenshots/inventory_dark.png" width="300"/> |
+
+### Storage Zones
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <img src="Screenshots/storage_light.png" width="300"/> | <img src="Screenshots/storage_dark.png" width="300"/> |
+
 ```
 
 ---
