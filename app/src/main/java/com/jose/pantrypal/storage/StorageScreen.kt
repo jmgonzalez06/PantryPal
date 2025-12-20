@@ -1,7 +1,6 @@
 package com.jose.pantrypal.storage
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -42,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.firebase.auth.FirebaseAuth
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,51 +86,38 @@ fun StorageScreen(
 
     }
     if (showAddDialog) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         StorageInputDialog(
             title = "New Storage Zone",
             onConfirm = { name ->
-                storageViewModel.addZone(userId, name)
+                storageViewModel.addZone(name.trim())
                 showAddDialog = false
-                storageViewModel.refresh()
             },
             onDismiss = { showAddDialog = false }
         )
     }
 
     if (zoneToEdit != null) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val oldName = zoneToEdit!!
+        val oldZone = zoneToEdit!!
         StorageInputDialog(
             title = "Edit Zone Name",
-            initialValue = zoneToEdit!!.zoneName,
+            initialValue = oldZone.zoneName,
             onConfirm = { newName ->
-                val oldZone = zoneToEdit!!
-                val trimmed = newName.trim()
-
-                // Create the new zone first (so we don’t lose data if add fails)
-                storageViewModel.addZone(userId, trimmed)
-
-                // Then delete the old zone (rename behavior)
-                storageViewModel.deleteZone(userId, oldZone)
-
+                storageViewModel.renameZone(oldZone, newName)
                 zoneToEdit = null
-                storageViewModel.refresh()
             },
             onDismiss = { zoneToEdit = null }
         )
     }
 
     if (zoneToDelete != null) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         AlertDialog(
             onDismissRequest = { zoneToDelete = null },
-            title = { Text("Delete ${zoneToDelete!!.id}?") },
+            title = { Text("Delete ${zoneToDelete!!.zoneName}?") },
             text = { Text("Are you sure? This cannot be undone.") },
             confirmButton = {
                 Button(
                     onClick = {
-                        storageViewModel.deleteZone(userId, zoneToDelete!!)
+                        storageViewModel.deleteZone(zoneToDelete!!)
                         zoneToDelete = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
