@@ -43,7 +43,7 @@ fun AddItemScreen(
     var expiryDate by remember { mutableStateOf<Timestamp?>(null) }
     var zoneId by remember { mutableStateOf("pantry") }
     val storageViewModel: StorageViewModel = viewModel()
-    val state by storageViewModel.uiState.collectAsState()
+    val storageState by storageViewModel.uiState.collectAsState()
 
 
     val context = LocalContext.current
@@ -123,13 +123,18 @@ fun AddItemScreen(
         Spacer(Modifier.height(8.dp))
 
         Text("Storage Zone")
-        listOf("fridge", "freezer", "pantry").forEach { zone ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = zoneId == zone,
-                    onClick = { zoneId = zone }
-                )
-                Text(zone.replaceFirstChar { it.uppercase() })
+
+        if (storageState.isLoading) {
+            Text("Loading zones...")
+        } else {
+            storageState.zones.forEach { zone ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = zoneId == zone.zoneName,
+                        onClick = { zoneId = zone.zoneName }
+                    )
+                    Text(zone.zoneName)
+                }
             }
         }
 
