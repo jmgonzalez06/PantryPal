@@ -165,9 +165,8 @@ com.jose.pantrypal/
 │   ├── Routes.kt
 │   └── PantryNavGraph.kt
 │
-└── profile/
-    └── ProfileScreen.kt
-
+├── profile/
+│   └── ProfileScreen.kt
 └── ui/
     └── theme/
         ├── Color.kt
@@ -212,6 +211,10 @@ com.jose.pantrypal/
 |------------|-----------|
 | <img src="Screenshots/login_light.png" width="300"/> | <img src="Screenshots/login_dark.png" width="300"/> |
 
+| Create Account (Light) | Create Account (Dark) |
+|------------------------|-----------------------|
+| <img src="Screenshots/signup_light.png" width="300"/> | <img src="Screenshots/signup_dark.png" width="300"/> |
+
 ### Dashboard
 
 | Light Mode | Dark Mode |
@@ -229,6 +232,12 @@ com.jose.pantrypal/
 | Light Mode | Dark Mode |
 |------------|-----------|
 | <img src="Screenshots/storage_light.png" width="300"/> | <img src="Screenshots/storage_dark.png" width="300"/> |
+
+### Profile
+
+| Light Mode | Dark Mode |
+|------------|-----------|
+| <img src="Screenshots/profile_light.png" width="300"/> | <img src="Screenshots/profile_dark.png" width="300"/> |
 
 ---
 
