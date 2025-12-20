@@ -41,7 +41,7 @@ fun AddItemScreen(
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("1") }
     var expiryDate by remember { mutableStateOf<Timestamp?>(null) }
-    var zoneId by remember { mutableStateOf("pantry") }
+    var zoneId by remember { mutableStateOf<String?>(null) }
     val storageViewModel: StorageViewModel = viewModel()
     val storageState by storageViewModel.uiState.collectAsState()
 
@@ -130,8 +130,8 @@ fun AddItemScreen(
             storageState.zones.forEach { zone ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = zoneId == zone.zoneName,
-                        onClick = { zoneId = zone.zoneName }
+                        selected = zoneId == zone.id,
+                        onClick = { zoneId = zone.id }
                     )
                     Text(zone.zoneName)
                 }
@@ -144,7 +144,7 @@ fun AddItemScreen(
                     name = name,
                     expiryDate = expiryDate,
                     quantity = quantity.toIntOrNull() ?: 1,
-                    zoneId = zoneId
+                    zoneId = zoneId ?: storageState.zones.first().id
                 )
                 onItemAdded()
             },

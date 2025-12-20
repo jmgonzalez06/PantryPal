@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import android.app.DatePickerDialog
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -50,9 +51,8 @@ fun ItemDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     val storageViewModel: StorageViewModel = viewModel()
     val storageState by storageViewModel.uiState.collectAsState()
-    var zoneId by remember { mutableStateOf("pantry") }
+    var zoneId by remember { mutableStateOf(item.zoneId) }
 
-    fun norm(s: String?) = s?.trim()?.lowercase() ?: ""
 
     LaunchedEffect(item.id) {
         name = item.name
@@ -60,20 +60,6 @@ fun ItemDetailScreen(
         expiryDate = item.expiryDate
         zoneId = item.zoneId ?: "pantry"
     }
-
-
-    LaunchedEffect(storageState.zones) {
-        if (storageState.isLoading) return@LaunchedEffect
-
-        val current = norm(zoneId)
-        val exists = storageState.zones.any { zone ->
-            norm(zone.zoneName) == current || norm(zone.id) == current
-        }
-        if (!exists) {
-            zoneId = storageState.zones.firstOrNull()?.zoneName ?: "pantry"
-        }
-    }
-
 
     val context = LocalContext.current
     val today = LocalDate.now()
@@ -144,15 +130,21 @@ fun ItemDetailScreen(
                 Text("Loading zones...")
             } else {
                 storageState.zones.forEach { zone ->
-                    val zoneKey = zone.zoneName.ifBlank { zone.id }
-
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
-                            selected = norm(zoneId) == norm(zoneKey),
-                            onClick = { zoneId = zoneKey }
+                            selected = zone.id == zoneId,
+                            onClick = { zoneId = zone.id }
                         )
-                        Text(zone.zoneName.ifBlank { zone.id })
+                        Text(zone.zoneName)
                     }
+                }
+
+                if (storageState.zones.none { it.id == zoneId }) {
+                    Text(
+                        "Previously selected zone no longer exists",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
 
