@@ -1,14 +1,16 @@
 package com.jose.pantrypal.storage
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.ui.Alignment.Companion.CenterEnd
+import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -20,7 +22,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -63,7 +64,9 @@ fun StorageScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            LazyColumn {
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp)
+            ) {
                 items(items = state.zones) { zone ->
                     StorageZoneCard(
                         zone = zone,
@@ -103,11 +106,19 @@ fun StorageScreen(
         val oldName = zoneToEdit!!
         StorageInputDialog(
             title = "Edit Zone Name",
-            initialValue = zoneToEdit!!.id,
+            initialValue = zoneToEdit!!.zoneName,
             onConfirm = { newName ->
-                storageViewModel.updateZone(userId, zoneToEdit!!.copy(zoneName = newName))
-                storageViewModel.deleteZone(userId, oldName)
+                val oldZone = zoneToEdit!!
+                val trimmed = newName.trim()
+
+                // Create the new zone first (so we don’t lose data if add fails)
+                storageViewModel.addZone(userId, trimmed)
+
+                // Then delete the old zone (rename behavior)
+                storageViewModel.deleteZone(userId, oldZone)
+
                 zoneToEdit = null
+                storageViewModel.refresh()
             },
             onDismiss = { zoneToEdit = null }
         )
@@ -141,15 +152,31 @@ fun StorageZoneCard(zone: StorageZone, onDelete: () -> Unit, onEdit: () -> Unit)
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row (
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Text(text = zone.zoneName, style = MaterialTheme.typography.titleMedium)
-            Row {
-                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, "Edit") }
-                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+            Text(
+                text = zone.zoneName,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(CenterStart)
+            )
+
+            Row(
+                modifier = Modifier.align(CenterEnd),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }
