@@ -1,5 +1,6 @@
 package com.jose.pantrypal.inventory
 
+import androidx.compose.foundation.background
 import com.jose.pantrypal.items.expiryAsLocalDate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
@@ -123,17 +128,23 @@ fun InventoryItemCard(item: Item,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.height(IntrinsicSize.Min)
         ) {
             Column(
                 Modifier
                     .padding(16.dp)
                     .weight(1f)
             ) {
-                Text(item.name, style = MaterialTheme.typography.titleMedium, color = indicatorColor)
+                Text(item.name, style = MaterialTheme.typography.titleMedium)
                 Text("Quantity: ${item.quantity}", style = MaterialTheme.typography.bodySmall)
                 Text("Expires in $daysRemaining days", style = MaterialTheme.typography.bodySmall)
             }
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .width(8.dp)
+                    .background(indicatorColor, shape = RoundedCornerShape(4.dp))
+            )
         }
     }
 }

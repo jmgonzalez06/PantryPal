@@ -100,11 +100,13 @@ fun StorageScreen(
 
     if (zoneToEdit != null) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val oldName = zoneToEdit!!
         StorageInputDialog(
             title = "Edit Zone Name",
             initialValue = zoneToEdit!!.id,
             onConfirm = { newName ->
                 storageViewModel.updateZone(userId, zoneToEdit!!.copy(zoneName = newName))
+                storageViewModel.deleteZone(userId, oldName)
                 zoneToEdit = null
             },
             onDismiss = { zoneToEdit = null }
