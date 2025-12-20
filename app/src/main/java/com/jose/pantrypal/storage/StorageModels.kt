@@ -4,8 +4,7 @@ import java.security.Timestamp
 
 data class StorageZone(
     val id: String = "",
-    val name: String = "",
-    val createdAt: Timestamp,
+    val zoneName: String = "",
 )
 
 data class StorageUiState(
