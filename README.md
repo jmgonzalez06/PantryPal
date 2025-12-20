@@ -257,7 +257,7 @@ com.jose.pantrypal/
 ## Demo Video
 
 **YouTube (Unlisted):**
-`<PASTE VIDEO LINK HERE>`
+https://youtu.be/uSneMkv7rHM
 
 ---
 
