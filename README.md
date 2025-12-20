@@ -69,7 +69,7 @@ The application uses Firebase Firestore with full CRUD operations on two entitie
 
 * Manage storage locations (user-defined storage locations, example: Pantry / Fridge / Freezer)
 * Add, rename, and delete zones
-* Validation to prevent deleting zones in use (if applicable)
+* Validation to prevent deleting storage zones that are currently in use by items
 
 ### Profile
 
@@ -81,9 +81,7 @@ The application uses Firebase Firestore with full CRUD operations on two entitie
 
 ## Screens
 
-The application includes more than 8 fully functional screens implemented using Jetpack Compose and the Navigation component.
-
-The application includes **8+ functional screens**, including:
+The application includes multiple fully functional screens implemented using Jetpack Compose and the Navigation component, including:
 
 * Login Screen
 * Sign Up Screen
@@ -119,6 +117,7 @@ The application follows the MVVM architecture with a Repository pattern, ensurin
 * Repositories abstract Firebase access
 * User-scoped Firestore paths ensure data isolation
 * Centralized expiration date handling via `ItemExtensions.kt`
+* Firestore security rules restrict all reads and writes to authenticated users accessing only their own data
 
 Firestore structure:
 
